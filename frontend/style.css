@@ -1,0 +1,65 @@
+/* Global */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f6f9;
+  color: #123;
+  line-height: 1.4;
+}
+header {
+  background: #004080;
+  color: white;
+  padding: 1rem 1.2rem;
+  text-align: center;
+}
+header nav { margin-top: 0.6rem; }
+header nav a {
+  color: white;
+  margin: 0 0.6rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+.header .subtitle { opacity: 0.9; }
+.main-container { padding: 2rem; max-width: 1000px; margin: 0 auto; }
+/* Section container */
+.container {
+  background: white;
+  padding: 1.4rem;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  margin-bottom: 1.4rem;
+}
+
+/* Forms */
+.form-card label { display:block; margin-top: 0.8rem; font-weight: 600; }
+.form-card input, .form-card select, .form-card button {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.4rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+}
+.primary-btn {
+  margin-top: 1rem;
+  background:#0066cc; color:white; border:none; cursor:pointer; font-weight:700;
+  padding: 0.7rem;
+}
+.primary-btn:hover { background:#004f99;}
+
+/* Result */
+.result-card { margin-top: 1rem; padding: 1rem; background:#eaf4ff; border-left: 6px solid #0066cc; border-radius:8px; }
+.badge { padding: 0.2rem 0.6rem; border-radius: 6px; font-weight: 700; }
+
+/* Chart & Legend */
+.chart-wrap { margin-top: 1rem; background: white; border-radius: 8px; padding: 0.8rem; box-shadow: 0 6px 18px rgba(0,0,0,0.03); }
+.legend { display:flex; gap: 1rem; margin-top: 0.6rem; align-items:center; }
+.legend-item { font-weight:700; display:flex; align-items:center; gap: 0.6rem; }
+.circle { width:14px; height:14px; border-radius: 999px; display:inline-block; }
+
+/* Buttons small */
+.secondary-btn { margin-top: 0.6rem; background: #f0f0f0; border:1px solid #ddd; padding:0.5rem 1rem; cursor:pointer; }
+
+/* Footer */
+footer { text-align:center; padding:1rem; color:#444; font-size:0.9rem; }
