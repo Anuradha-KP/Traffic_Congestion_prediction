@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kerala Traffic - App</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<header>
+  <h1>Kerala Traffic Congestion Predictor 🚦</h1>
+  <p class="subtitle">Plan your journey with smart congestion forecasts</p>
+  <nav>
+    <a href="/predict">Predict</a>
+    <a href="/trend">Weekly Trend</a>
+    <a href="/compare">Compare</a>
+    <a href="/live">Live Data</a>
+    <a href="/about">About</a>
+    <a href="/">Home</a>
+  </nav>
+</header>
+
+<main class="main-container">
+  <!-- Predict -->
+  <section id="predict" class="container">
+    <h2>Predict Traffic Congestion</h2>
+    <form id="predictForm" class="form-card">
+      <label for="date">Date:</label>
+      <input type="date" id="date" name="date" required>
+      <label for="hour">Hour:</label>
+      <select id="hour" name="hour" required>
+        <option value="">Select Hour</option>
+        <script>
+          for (let i = 0; i < 24; i++) {
+            document.write(`<option value="${i}">${i}:00</option>`);
+          }
+        </script>
+      </select>
+      <label for="location">Location:</label>
+      <select id="location" name="location" required multiple>
+        <option>Loading...</option>
+      </select>
+      <button type="button" id="predictBtn" class="primary-btn">Predict Congestion</button>
+    </form>
+
+    <div class="result-card" id="result" style="display:none;">
+      <h3>Predicted Congestion: <span id="congestion" class="badge"></span></h3>
+      <p><b>Estimated Avg Speed:</b> <span id="speed"></span></p>
+      <p><b>Traffic Volume:</b> <span id="volume"></span></p>
+      <p><b>Occupancy Ratio:</b> <span id="occupancy"></span></p>
+    </div>
+  </section>
+
+  <!-- Weekly Trend -->
+  <section id="trend" class="container">
+    <h2>Weekly Trend</h2>
+    <canvas id="trendChart" width="700" height="300"></canvas>
+  </section>
+
+  <!-- Compare Locations -->
+  <section id="compare" class="container">
+    <h2>Compare Locations</h2>
+    <div class="result-card" id="compareResults">Select locations above and click Predict to see comparison.</div>
+  </section>
+
+  <!-- Live Data -->
+  <section id="live" class="container">
+    <h2>Live Traffic Dashboard</h2>
+    <div class="result-card" id="liveResults">Loading live data...</div>
+    <canvas id="liveChart" width="700" height="300"></canvas>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="container">
+    <h2>About This Project</h2>
+    <p>This website demonstrates a machine learning model that predicts traffic congestion levels in Kerala using features like date, time, location, traffic volume, speed, and occupancy. Congestion levels are:</p>
+    <ul>
+      <li><b style="color:green">Low (🟢)</b></li>
+      <li><b style="color:orange">Medium (🟡)</b></li>
+      <li><b style="color:red">High (🔴)</b></li>
+    </ul>
+    <p>Trained on a synthetic dataset and deployed with Flask. Future scope: live CCTV / streaming data integration.</p>
+  </section>
+
+</main>
+
+<footer>&copy; 2025 Kerala Traffic Congestion Predictor</footer>
+
+<script>
+let trendChart, liveChart;
+
+// Load locations dynamically
+function loadLocations() {
+    fetch("/locations")
+    .then(res => res.json())
+    .then(data => {
+        const locSelect = document.getElementById("location");
+        locSelect.innerHTML = "";
+        data.forEach(loc => {
+            const opt = document.createElement("option");
+            opt.value = loc;
+            opt.text = loc;
+            locSelect.appendChild(opt);
+        });
+    });
+}
+
+// Predict congestion
+document.getElementById("predictBtn").addEventListener("click", () => {
+    const date = document.getElementById("date").value;
+    const hour = document.getElementById("hour").value;
+    const locSelect = document.getElementById("location");
+    const locations = Array.from(locSelect.selectedOptions).map(o => o.value);
+
+    if (!date || !hour || locations.length === 0) {
+        alert("Please select date, hour, and at least one location.");
+        return;
+    }
+
+    // Predict first location
+    fetch("/api/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({date: date, hour: hour, location: locations[0]})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.error) return alert(data.error);
+        document.getElementById("result").style.display = "block";
+        document.getElementById("congestion").textContent = data.congestion;
+        document.getElementById("speed").textContent = data.speed;
+        document.getElementById("volume").textContent = data.volume;
+        document.getElementById("occupancy").textContent = data.occupancy;
+    });
+
+    // Update weekly trend
+    fetch("/api/trend", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({date: date, hour: hour, location: locations[0]})
+    })
+    .then(res => res.json())
+    .then(data => {
+        const ctx = document.getElementById("trendChart").getContext("2d");
+        const labels = data.map(d => d.day);
+        const low = data.map(d => d.congestion==="Low"?1:0);
+        const med = data.map(d => d.congestion==="Medium"?1:0);
+        const high = data.map(d => d.congestion==="High"?1:0);
+
+        if(trendChart) trendChart.destroy();
+        trendChart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels, datasets: [
+                {label:"Low", data: low, backgroundColor:"green"},
+                {label:"Medium", data: med, backgroundColor:"orange"},
+                {label:"High", data: high, backgroundColor:"red"}
+            ]},
+            options:{ responsive:true, plugins:{legend:{position:'top'}}}
+        });
+    });
+
+    // Update compare table
+    fetch("/api/compare", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({date: date, hour: hour, locations})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.error) return console.error(data.error);
+        const container = document.getElementById("compareResults");
+        let html = "<table> <tr><th>Location</th><th>Congestion</th><th>Volume</th><th>Speed</th><th>Occupancy</th></tr>";
+        data.forEach(d => {
+            html += `<tr>
+                <td>${d.location}</td>
+                <td style="color:${d.congestion==="Low"?"green":d.congestion==="Medium"?"orange":"red"}">${d.congestion}</td>
+                <td>${d.traffic_volume}</td>
+                <td>${d.average_speed_kmph}</td>
+                <td>${(d.occupancy_ratio*100).toFixed(1)}%</td>
+            </tr>`;
+        });
+        html += "</table>";
+        container.innerHTML = html;
+    });
+});
+
+// Live Dashboard
+function fetchLiveData() {
+    fetch("/api/live")
+    .then(res => res.json())
+    .then(data => {
+        const container = document.getElementById("liveResults");
+        container.innerHTML = "";
+        if(data.length===0){ container.innerHTML="<p>No live data available</p>"; return; }
+
+        let times=[], low=[], med=[], high=[];
+        data.forEach(d=>{
+            container.innerHTML += `<p>[${d.timestamp}] 📍 ${d.location} | Congestion: <b>${d.predicted_congestion}</b> | Volume: ${d.traffic_volume} | Speed: ${d.average_speed_kmph} km/h | Occupancy: ${(d.occupancy_ratio*100).toFixed(1)}%</p>`;
+            times.push(d.timestamp);
+            low.push(d.predicted_congestion==="Low"?1:0);
+            med.push(d.predicted_congestion==="Medium"?1:0);
+            high.push(d.predicted_congestion==="High"?1:0);
+        });
+
+        const ctx = document.getElementById("liveChart").getContext("2d");
+        if(liveChart) liveChart.destroy();
+        liveChart = new Chart(ctx, {
+            type:'bar',
+            data:{labels:times,datasets:[
+                {label:"Low", data:low, backgroundColor:"green"},
+                {label:"Medium", data:med, backgroundColor:"orange"},
+                {label:"High", data:high, backgroundColor:"red"}
+            ]},
+            options:{responsive:true, plugins:{legend:{position:'top'}}}
+        });
+    });
+}
+
+loadLocations();
+setInterval(fetchLiveData,3000);
+fetchLiveData();
+</script>
+</body>
+</html>
