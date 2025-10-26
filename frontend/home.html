@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kerala Traffic Congestion Predictor</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #004080, #0066cc);
+      color: white;
+      height: 100vh;
+    }
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 { font-size: 3rem; margin: 0 0 0.5rem; }
+    p { max-width: 700px; margin: 0 0 1.5rem; opacity: 0.95; }
+    .btns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+    .btn {
+      background: white;
+      color: #004080;
+      padding: 0.8rem 1.4rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    }
+    .btn:hover { background: #e6f0ff; transform: translateY(-2px); }
+    footer { position: absolute; bottom: 12px; width:100%; text-align:center; color: rgba(255,255,255,0.8); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Kerala Traffic Congestion Predictor 🚦</h1>
+    <p>
+      Predict congestion levels across Kerala using a machine learning model trained on traffic features
+      (time, location, volume, speed, occupancy). Use the Predict, Weekly Trend, Compare and Live Data
+      tools to plan your journey better.
+    </p>
+
+    <div class="btns">
+      <a class="btn" href="/predict">Predict</a>
+      <a class="btn" href="/trend">Weekly Trend</a>
+      <a class="btn" href="/compare">Compare</a>
+      <a class="btn" href="/live">Live Data</a>
+      <a class="btn" href="/about">About</a>
+    </div>
+  </div>
+
+  <footer>© 2025 Kerala Traffic Congestion Predictor</footer>
+</body>
+</html>
